@@ -14,7 +14,14 @@ class CreateDeleteCorpusViewSet(
     serializer_class = CorpusSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data.words, many=True)
+        words = request.data
+
+        if not words['words'] and len(words['words']) > 0:
+            content = {'error': 'words list not found'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        # words = [{'word': word} for word in words]
+        serializer = self.get_serializer(data=words)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        return Response(serializer.data, status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
