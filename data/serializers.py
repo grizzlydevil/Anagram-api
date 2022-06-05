@@ -20,9 +20,10 @@ class CorpusSerializer(serializers.Serializer):
         for word in unique_words:
             match = re.match('^[a-zA-Z]+$', word)
             if not match:
-                raise serializers.ValidationError(
-                    'one or more words have illegal characters'
-                )
+                unique_words.remove(word)
+                # raise serializers.ValidationError(
+                #     'one or more words have illegal characters'
+                # )
 
         # Is word in English language?
 
@@ -43,7 +44,7 @@ class CorpusSerializer(serializers.Serializer):
                 continue
 
             hash = Corpus.get_hash(word)
-            chain = Corpus.get_anagram(word)
+            chain = Corpus.get_alphagram(word)
 
             alphagram, _ = Alphagram.objects.get_or_create(
                 chain=chain

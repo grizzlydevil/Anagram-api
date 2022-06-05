@@ -1,8 +1,9 @@
+import os
+
 from rest_framework import status
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.settings import api_settings
 
 from .serializers import CorpusSerializer
 from .models import Corpus
@@ -24,6 +25,16 @@ class CreateDeleteCorpusViewSet(GenericViewSet):
         if not words or len(words) == 0:
             content = {'error': 'words list not found'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        if words[0] == 'ingest dict':
+            with open('data/dictionary.txt', 'r') as file:
+                words = file.readlines()
+
+            words = [word.strip() for word in words]
+            serializer = self.get_serializer(data={'words': words})
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
 
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
