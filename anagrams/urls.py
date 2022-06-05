@@ -4,7 +4,7 @@ from . views import ListAnagramsAPIView
 
 urlpatterns = [
     path(
-        r'(?P<word>\w+).json',
+        '<slug:word>.json',
         ListAnagramsAPIView.as_view()
     ),
 ]

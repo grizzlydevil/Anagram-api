@@ -3,7 +3,10 @@ from rest_framework import serializers
 from data.models import Corpus
 
 
-class WordSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Corpus
-        fields = ('word',)
+class AnagramsSerializer(serializers.Serializer):
+
+    def to_representation(self, instance):
+        words = [word_obj.word for word_obj in instance]
+        return {
+            'anagrams': words
+        }
