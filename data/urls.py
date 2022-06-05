@@ -2,7 +2,7 @@ from rest_framework import routers
 
 from .views import CreateDeleteCorpusViewSet
 
-router = routers.SimpleRouter()
-router.register('', CreateDeleteCorpusViewSet, basename='corpus')
+router = routers.DefaultRouter(trailing_slash=False)
+router.register('words', CreateDeleteCorpusViewSet, basename='corpus')
 
 urlpatterns = router.urls

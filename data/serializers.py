@@ -12,16 +12,21 @@ class CorpusSerializer(serializers.Serializer):
 
     def validate_words(self, words):
         """validate words"""
+
+        # create unique words list
+        unique_words = list(set(words))
+
         # Is it a single word? Does it contain illeagal characters?
-        for word in words:
-            match = re.search('^[a-zA-Z]$', word)
+        for word in unique_words:
+            match = re.match('^[a-zA-Z]+$', word)
             if not match:
                 raise serializers.ValidationError(
-                    'one or more words have illeagal characters'
+                    'one or more words have illegal characters'
                 )
 
         # Is word in English language?
-        return words
+
+        return unique_words
 
     def create(self, validated_data):
         """
@@ -32,18 +37,23 @@ class CorpusSerializer(serializers.Serializer):
         words = validated_data['words']
         corpus = []
         for word in words:
+
+            # do not enter the same words into corpus
+            if Corpus.objects.filter(word=word).exists():
+                continue
+
             lowercase_word = word.lower()
             hash = sum(
                 (1 << (ord(letter) - 97) * 2 for letter in lowercase_word)
             )
-            alphagram = ''.join(sorted(lowercase_word))
+            chain = ''.join(sorted(lowercase_word))
 
-            alphagram_obj, _ = Alphagram.objects.get_or_create(
-                chain=alphagram
+            alphagram, _ = Alphagram.objects.get_or_create(
+                chain=chain
             )
 
             corpus.append(
-                Corpus(word=word, hash=hash, alphagram=alphagram_obj)
+                Corpus(word=word, hash=hash, alphagram=alphagram)
             )
 
         return Corpus.objects.bulk_create(corpus)
