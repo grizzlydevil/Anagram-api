@@ -30,11 +30,20 @@ class CreateDeleteCorpusViewSet(GenericViewSet):
         self.perform_create(serializer)
         return Response(status=status.HTTP_201_CREATED)
 
+    @action(
+        detail=False,
+        methods=['delete'],
+        url_path=r'words/(?P<word>\w+).json',
+        url_name='word'
+    )
+    def delete_word(self, _, word):
+        word_obj = Corpus.objects.filter(word=word)
+        if len(word_obj) == 1:
+            self.perform_destroy(word_obj)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     def perform_create(self, serializer):
         serializer.save()
 
-    def get_success_headers(self, data):
-        try:
-            return {'Location': str(data[api_settings.URL_FIELD_NAME])}
-        except (TypeError, KeyError):
-            return {}
+    def perform_destroy(self, obj):
+        obj.delete()
