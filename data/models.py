@@ -17,3 +17,13 @@ class Corpus(models.Model):
     hash = models.PositiveBigIntegerField()
 
     alphagram = models.ForeignKey(Alphagram, on_delete=models.CASCADE)
+
+    @classmethod
+    def get_hash(word):
+        return sum(
+            (1 << (ord(letter) - 97) * 2 for letter in word.lower())
+        )
+
+    @classmethod
+    def get_anagram(word):
+        return ''.join(sorted(word.lower()))

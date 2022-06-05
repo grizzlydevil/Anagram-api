@@ -42,11 +42,8 @@ class CorpusSerializer(serializers.Serializer):
             if Corpus.objects.filter(word=word).exists():
                 continue
 
-            lowercase_word = word.lower()
-            hash = sum(
-                (1 << (ord(letter) - 97) * 2 for letter in lowercase_word)
-            )
-            chain = ''.join(sorted(lowercase_word))
+            hash = Corpus.get_hash(word)
+            chain = Corpus.get_anagram(word)
 
             alphagram, _ = Alphagram.objects.get_or_create(
                 chain=chain
