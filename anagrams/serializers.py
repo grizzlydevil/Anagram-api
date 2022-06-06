@@ -1,7 +1,5 @@
 from rest_framework import serializers
 
-from data.models import Corpus
-
 
 class AnagramsSerializer(serializers.Serializer):
 
