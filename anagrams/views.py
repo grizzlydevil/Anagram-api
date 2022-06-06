@@ -1,3 +1,5 @@
+import timeit
+
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -23,10 +25,18 @@ class ListAnagramsAPIView(ListAPIView):
         hash = Corpus.get_hash(word)
         letter_chain = Corpus.get_alphagram(word)
 
+        starttime = timeit.default_timer()
         queryset = self.get_queryset()
-        queryset = (queryset.filter(hash=hash)
-                    .exclude(word=word)
-                    .filter(alphagram__chain=letter_chain))
+        for i in range(20):
+            queryset = (queryset.filter(hash=hash))
+            # queryset = (queryset.filter(hash=hash)
+            #             .exclude(word=word)
+            #             .filter(alphagram__chain=letter_chain))
+            # queryset = (queryset.filter(alphagram__chain=letter_chain)
+            #             .exclude(word=word)
+            #             )
+            print(", ".join([item.word for item in queryset]) if len(queryset) > 0 else 'NONE')
+        print(timeit.default_timer() - starttime)
 
         if limit:
             queryset = queryset[:limit]
