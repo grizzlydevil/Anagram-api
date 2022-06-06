@@ -14,7 +14,7 @@ class ListAnagramsAPIView(ListAPIView):
     def list(self, request, *args, **kwargs):
         word = kwargs.get('word')
         limit = request.GET.get('limit')
-        if limit and not limit.isdigit() or int(limit) < 1:
+        if limit and (not limit.isdigit() or int(limit) < 1):
             data = {
                 'error':
                     'limit query param should integer and be greater than 0'
