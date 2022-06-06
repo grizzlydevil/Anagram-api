@@ -22,15 +22,6 @@ class ListAnagramsAPIView(ListAPIView):
             return Response(data, status.HTTP_400_BAD_REQUEST)
 
         include_proper_nouns = request.GET.get('include_proper_nouns')
-        if (include_proper_nouns and
-           include_proper_nouns != 'True' and
-           include_proper_nouns != 'False'):
-            data = {
-                'error':
-                    'include_proper_nouns must be True or False'
-            }
-            return Response(data, status.HTTP_400_BAD_REQUEST)
-
         limit = int(limit) if limit else None
 
         hash = Corpus.get_hash(word)
