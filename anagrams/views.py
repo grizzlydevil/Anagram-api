@@ -1,5 +1,6 @@
 from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
+from rest_framework import status
 
 from data.models import Corpus
 from .serializers import AnagramsSerializer
@@ -13,7 +14,11 @@ class ListAnagramsAPIView(ListAPIView):
     def list(self, request, *args, **kwargs):
         word = kwargs.get('word')
         limit = request.GET.get('limit')
-        limit = int(limit) if limit and limit.isnumeric() else limit
+        if limit and not limit.is_numeric() and int(limit) < 1:
+            data = {'error': 'limit query param should be greater than 0'}
+            return Response(data, status.HTTP_400_BAD_REQUEST)
+
+        limit = int(limit) if limit else None
 
         hash = Corpus.get_hash(word)
         letter_chain = Corpus.get_alphagram(word)
