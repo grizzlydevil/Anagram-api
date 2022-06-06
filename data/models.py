@@ -14,20 +14,15 @@ class Corpus(models.Model):
     """A model for word. To match against anagrams stores hash and alphagram"""
 
     word = models.CharField(max_length=50)
-    hash = models.PositiveBigIntegerField()
+    hash = models.PositiveBigIntegerField(db_index=True)
 
     alphagram = models.ForeignKey(Alphagram, on_delete=models.CASCADE)
 
     @staticmethod
     def get_hash(word):
-        try:
-            hash = sum(
+        return sum(
                 (1 << (ord(letter) - 97) * 2 for letter in word.lower())
-            )
-        except:
-            pass
-
-        return hash
+        )
 
     @staticmethod
     def get_alphagram(word):
