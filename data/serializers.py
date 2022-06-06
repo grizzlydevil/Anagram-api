@@ -49,3 +49,12 @@ class CorpusSerializer(serializers.Serializer):
             )
 
         return Corpus.objects.bulk_create(corpus)
+
+
+class CorpusStatsSerializer(serializers.Serializer):
+
+    word_count = serializers.IntegerField()
+    min_length = serializers.IntegerField()
+    max_length = serializers.FloatField()
+    average_length = serializers.IntegerField()
+    median_length = serializers.FloatField()

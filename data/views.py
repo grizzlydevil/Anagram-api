@@ -1,14 +1,20 @@
+import math
+
+from django.db.models import Avg, Max, Min, Count
+from django.db.models.functions import Length
+
 from rest_framework import status
 from rest_framework.viewsets import GenericViewSet
+from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .serializers import CorpusSerializer
+from .serializers import CorpusSerializer, CorpusStatsSerializer
 from .models import Corpus
 
 
 class CreateDeleteCorpusViewSet(GenericViewSet):
-    """A viewset to store and delete words to the corpus"""
+    """A viewset to manipulate data in the Corpus"""
 
     serializer_class = CorpusSerializer
 
@@ -25,6 +31,7 @@ class CreateDeleteCorpusViewSet(GenericViewSet):
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
         if words[0] == 'ingest dict':
+            """This is a hack to store the whole dictionary.txt to DB"""
             with open('data/dictionary.txt', 'r') as file:
                 words = file.readlines()
 
@@ -56,3 +63,42 @@ class CreateDeleteCorpusViewSet(GenericViewSet):
 
     def perform_destroy(self, obj):
         obj.delete()
+
+
+class ShowCorpusStatsView(APIView):
+    """
+    Endpoint that returns a count of words in the corpus and
+    min/max/median/average word length
+    """
+
+    def get(self, request):
+        stats = self.get_object()
+        serializer = CorpusStatsSerializer(data=stats)
+        serializer.is_valid()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get_object(self):
+        queryset = Corpus.objects.all()
+
+        if queryset.exists():
+            queryset = queryset.annotate(length=Length('word')
+                                         ).order_by('length')
+            num_of_values = queryset.count()
+            stats = queryset.aggregate(
+                min_length=Min('length'),
+                average_length=Avg('length'),
+                max_length=Max('length'),
+            )
+
+            if num_of_values % 2 == 0:
+                stats['median_length'] = (
+                    (queryset[math.floor(num_of_values / 2)].length +
+                     queryset[math.floor(num_of_values / 2) + 1].length) / 2
+                )
+            else:
+                stats['median_length'] = queryset[num_of_values / 2].length
+
+            stats['word_count'] = num_of_values
+
+        return stats
