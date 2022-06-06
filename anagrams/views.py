@@ -16,8 +16,11 @@ class ListAnagramsAPIView(ListAPIView):
     def list(self, request, *args, **kwargs):
         word = kwargs.get('word')
         limit = request.GET.get('limit')
-        if limit and not limit.is_numeric() and int(limit) < 1:
-            data = {'error': 'limit query param should be greater than 0'}
+        if limit and not limit.isdigit() or int(limit) < 1:
+            data = {
+                'error':
+                    'limit query param should integer and be greater than 0'
+            }
             return Response(data, status.HTTP_400_BAD_REQUEST)
 
         limit = int(limit) if limit else None
@@ -25,25 +28,14 @@ class ListAnagramsAPIView(ListAPIView):
         hash = Corpus.get_hash(word)
         letter_chain = Corpus.get_alphagram(word)
 
-        starttime = timeit.default_timer()
-        queryset = self.get_queryset()
-        for i in range(20):
-            queryset = (queryset.filter(hash=hash))
-            # queryset = (queryset.filter(hash=hash)
-            #             .exclude(word=word)
-            #             .filter(alphagram__chain=letter_chain))
-            # queryset = (queryset.filter(alphagram__chain=letter_chain)
-            #             .exclude(word=word)
-            #             )
-            print(
-                ", ".join(
-                    [item.word for item in queryset]
-                ) if len(queryset) > 0 else 'NONE'
-            )
-        print(timeit.default_timer() - starttime)
+        queryset = self.get_queryset().filter(hash=hash)
+        if queryset:
+            all_words = [item.word for item in queryset
+                         if item.word != word and
+                         Corpus.get_alphagram(item.word) == letter_chain]
 
-        if limit:
-            queryset = queryset[:limit]
+            if limit:
+                all_words = all_words[:limit]
 
-        serializer = AnagramsSerializer(queryset)
+        serializer = AnagramsSerializer(all_words)
         return Response(serializer.data)
