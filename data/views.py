@@ -1,5 +1,3 @@
-import os
-
 from rest_framework import status
 from rest_framework.viewsets import GenericViewSet
 from rest_framework.decorators import action
