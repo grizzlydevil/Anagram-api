@@ -9,7 +9,9 @@ from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
-from .serializers import CorpusSerializer, CorpusStatsSerializer
+from .serializers import (
+    CorpusSerializer, CorpusStatsSerializer, WordsWithMostAnagramsSerializer
+)
 from .models import Corpus
 
 
@@ -102,3 +104,40 @@ class ShowCorpusStatsView(APIView):
             stats['word_count'] = num_of_values
 
         return stats
+
+
+class WordsWithMostAnagramsView(APIView):
+    """A view that shows groups of words with most anagrams"""
+
+    def get(self, request):
+        data = self.get_object()
+        serializer = WordsWithMostAnagramsSerializer(data=data)
+        serializer.is_valid()
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def get_object(self):
+        queryset = Corpus.objects.all()
+
+        if queryset.exists():
+            words_with_most_anagrams = (
+                queryset
+                .values('alphagram')
+                .annotate(count=Count('id'))
+                .order_by('-count')
+            )
+
+        words_with_most_anagrams = (
+            words_with_most_anagrams.filter(
+                count=words_with_most_anagrams[0]['count'])
+        )
+        alphagram_ids = [
+            word['alphagram'] for word in words_with_most_anagrams]
+
+        obj = {
+            [list(queryset.filter(alphagram__id=alphagram_id).values_list(
+                'word', flat=True))
+             for alphagram_id in alphagram_ids]
+        }
+
+        return obj

@@ -2,7 +2,7 @@ import re
 
 from rest_framework import serializers
 
-from .models import Corpus
+from .models import Corpus, Alphagram
 
 
 class CorpusSerializer(serializers.Serializer):
@@ -43,9 +43,14 @@ class CorpusSerializer(serializers.Serializer):
                 continue
 
             hash = Corpus.get_hash(word)
+            letter_chain = Corpus.get_alphagram(word)
+
+            alphagram, _ = Alphagram.objects.get_or_create(
+                letter_chain=letter_chain
+            )
 
             corpus.append(
-                Corpus(word=word, hash=hash)
+                Corpus(word=word, hash=hash, alphagram=alphagram)
             )
 
         return Corpus.objects.bulk_create(corpus)
@@ -58,3 +63,9 @@ class CorpusStatsSerializer(serializers.Serializer):
     max_length = serializers.FloatField()
     average_length = serializers.IntegerField()
     median_length = serializers.FloatField()
+
+
+class WordsWithMostAnagramsSerializer(serializers.Serializer):
+
+    def to_representation(self, instance):
+        return instance
