@@ -35,7 +35,11 @@ class ListAnagramsAPIView(ListAPIView):
             # queryset = (queryset.filter(alphagram__chain=letter_chain)
             #             .exclude(word=word)
             #             )
-            print(", ".join([item.word for item in queryset]) if len(queryset) > 0 else 'NONE')
+            print(
+                ", ".join(
+                    [item.word for item in queryset]
+                ) if len(queryset) > 0 else 'NONE'
+            )
         print(timeit.default_timer() - starttime)
 
         if limit:
