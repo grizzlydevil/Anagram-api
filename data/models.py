@@ -20,9 +20,29 @@ class Corpus(models.Model):
 
     @staticmethod
     def get_hash(word):
-        return sum(
-                (1 << (ord(letter) - 97) * 2 for letter in word.lower())
-        )
+        """
+        Create a hash to store in the database which would be unique to every
+        anagram
+        """
+        lowercase_word = word.lower()
+
+        # every letter of a word is hashed as a bitwise number
+        # every letter has 2 bits corresponding to the times this letter
+        # appeared in the word.
+        word_hash = sum((1 << (ord(letter) - 97) * 2
+                         for letter in lowercase_word))
+
+        # However in the rare cases when there is for example 4 letters 'a' in
+        # the word the word hash would be the same as letter 'b'
+        # For this purpose I also hash the length of a word
+        length_of_word = len(word)
+
+        # shiftig 6 bits to the left and adding word length
+        # 6 bits lets hashing word up to 63 letters long. Which is plenty
+        # enough for English language
+        hash_with_word_length = (word_hash << 6) | length_of_word
+
+        return hash_with_word_length
 
     @staticmethod
     def get_alphagram(word):
