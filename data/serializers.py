@@ -2,7 +2,7 @@ import re
 
 from rest_framework import serializers
 
-from .models import Corpus, Alphagram
+from .models import Corpus
 
 
 class CorpusSerializer(serializers.Serializer):
@@ -43,14 +43,9 @@ class CorpusSerializer(serializers.Serializer):
                 continue
 
             hash = Corpus.get_hash(word)
-            letter_chain = Corpus.get_alphagram(word)
-
-            alphagram, _ = Alphagram.objects.get_or_create(
-                letter_chain=letter_chain
-            )
 
             corpus.append(
-                Corpus(word=word, hash=hash, alphagram=alphagram)
+                Corpus(word=word, hash=hash)
             )
 
         return Corpus.objects.bulk_create(corpus)
