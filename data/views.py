@@ -86,22 +86,22 @@ class ShowCorpusStatsView(APIView):
         if queryset.exists():
             queryset = queryset.annotate(length=Length('word')
                                          ).order_by('length')
-            num_of_values = queryset.count()
+            num_of_words = queryset.count()
             stats = queryset.aggregate(
                 min_length=Min('length'),
                 average_length=Avg('length'),
                 max_length=Max('length'),
             )
 
-            if num_of_values % 2 == 0:
+            if num_of_words % 2 == 0:
                 stats['median_length'] = (
-                    (queryset[math.floor(num_of_values / 2)].length +
-                     queryset[math.floor(num_of_values / 2) + 1].length) / 2
+                    (queryset[math.floor(num_of_words / 2)].length +
+                     queryset[math.floor(num_of_words / 2) + 1].length) / 2
                 )
             else:
-                stats['median_length'] = queryset[num_of_values / 2].length
+                stats['median_length'] = queryset[num_of_words / 2].length
 
-            stats['word_count'] = num_of_values
+            stats['word_count'] = num_of_words
 
         return stats
 
@@ -118,26 +118,28 @@ class WordsWithMostAnagramsView(APIView):
 
     def get_object(self):
         queryset = Corpus.objects.all()
+        obj = {}
 
         if queryset.exists():
-            words_with_most_anagrams = (
+            hashes_sorted_by_popularity = (
                 queryset
-                .values('alphagram')
+                .values('hash')
                 .annotate(count=Count('id'))
                 .order_by('-count')
             )
 
-        words_with_most_anagrams = (
-            words_with_most_anagrams.filter(
-                count=words_with_most_anagrams[0]['count'])
-        )
-        alphagram_ids = [
-            word['alphagram'] for word in words_with_most_anagrams]
+            most_popular_hashes = (
+                hashes_sorted_by_popularity.filter(
+                    count=hashes_sorted_by_popularity[0]['count'])
+            )
 
-        obj = {
-            [list(queryset.filter(alphagram__id=alphagram_id).values_list(
-                'word', flat=True))
-             for alphagram_id in alphagram_ids]
-        }
+            alphagram_ids = [
+                word['alphagram'] for word in most_popular_hashes]
+
+            # obj = {
+            #     [list(queryset.filter(alphagram__id=alphagram_id).values_list(
+            #         'word', flat=True))
+            #     for alphagram_id in alphagram_ids]
+            # }
 
         return obj

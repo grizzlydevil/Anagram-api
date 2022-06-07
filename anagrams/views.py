@@ -27,6 +27,7 @@ class ListAnagramsAPIView(ListAPIView):
         hash = Corpus.get_hash(word)
 
         queryset = self.get_queryset().filter(hash=hash)
+        all_words = {}
         if queryset.exists():
             all_words = [item.word for item in queryset
                          if item.word != word]
