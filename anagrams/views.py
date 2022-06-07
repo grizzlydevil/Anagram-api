@@ -25,13 +25,11 @@ class ListAnagramsAPIView(ListAPIView):
         limit = int(limit) if limit else None
 
         hash = Corpus.get_hash(word)
-        letter_chain = Corpus.get_alphagram(word)
 
         queryset = self.get_queryset().filter(hash=hash)
-        if queryset:
+        if queryset.exists():
             all_words = [item.word for item in queryset
-                         if item.word != word and
-                         Corpus.get_alphagram(item.word) == letter_chain]
+                         if item.word != word]
 
             if limit:
                 all_words = all_words[:limit]
