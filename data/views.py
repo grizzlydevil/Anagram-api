@@ -106,15 +106,16 @@ class ShowCorpusStatsView(APIView):
         return stats
 
 
-class WordsWithMostAnagramsView(APIView):
+class GetAnagramsView(APIView):
     """A view that shows groups of words with most anagrams"""
 
     def get(self, request):
-        data = self.get_object()
+        size = request.GET.get('size')
+        data = self.get_object(size)
 
         return Response(data, status=status.HTTP_200_OK)
 
-    def get_object(self):
+    def get_object(self, size):
         queryset = Corpus.objects.all()
         obj = {}
 
@@ -126,13 +127,18 @@ class WordsWithMostAnagramsView(APIView):
                 .order_by('-count')
             )
 
-            most_popular_hashes = (
+            # if size is not specified most popular will be collected
+            group_size = (
+                size if size else hashes_sorted_by_popularity[0]['count']
+            )
+
+            most_popular_groups = (
                 hashes_sorted_by_popularity.filter(
-                    count=hashes_sorted_by_popularity[0]['count'])
+                    count__gte=group_size)
             )
 
             most_popular_hashes = [
-                hash['hash'] for hash in most_popular_hashes]
+                hash['hash'] for hash in most_popular_groups]
 
             queryset = queryset.filter(hash__in=most_popular_hashes)
             obj = {
