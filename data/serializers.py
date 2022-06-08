@@ -55,6 +55,6 @@ class CorpusStatsSerializer(serializers.Serializer):
 
     word_count = serializers.IntegerField()
     min_length = serializers.IntegerField()
-    max_length = serializers.FloatField()
-    average_length = serializers.IntegerField()
-    median_length = serializers.FloatField()
+    max_length = serializers.IntegerField()
+    average_length = serializers.DecimalField(max_digits=5, decimal_places=2)
+    median_length = serializers.DecimalField(max_digits=4, decimal_places=1)

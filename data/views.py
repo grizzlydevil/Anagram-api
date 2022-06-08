@@ -95,11 +95,13 @@ class ShowCorpusStatsView(APIView):
 
             if num_of_words % 2 == 0:
                 stats['median_length'] = (
-                    (queryset[math.floor(num_of_words / 2)].length +
-                     queryset[math.floor(num_of_words / 2) + 1].length) / 2
+                    (queryset[int(num_of_words / 2)].length +
+                     queryset[int(num_of_words / 2 + 1)].length) / 2
                 )
             else:
-                stats['median_length'] = queryset[num_of_words / 2].length
+                stats['median_length'] = (
+                    queryset[math.ceil(num_of_words / 2)].length
+                )
 
             stats['word_count'] = num_of_words
 
