@@ -1,9 +1,13 @@
+import re
+
 from rest_framework.generics import ListAPIView
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
 from data.models import Corpus
 from .serializers import AnagramsSerializer
+from data.serializers import CorpusSerializer
 
 
 class ListAnagramsAPIView(ListAPIView):
@@ -15,11 +19,19 @@ class ListAnagramsAPIView(ListAPIView):
         word = kwargs.get('word')
         limit = request.GET.get('limit')
         if limit and (not limit.isdigit() or int(limit) < 1):
-            data = {
+            content = {
                 'error':
                     'limit query param should integer and be greater than 0'
             }
-            return Response(data, status.HTTP_400_BAD_REQUEST)
+            return Response(content, status.HTTP_400_BAD_REQUEST)
+
+        # check if word contains illegal characters
+        if not re.match('^[a-zA-Z-]+$', word):
+            content = {
+                'error':
+                    'specified word contains illegal characters'
+            }
+            return Response(content, status.HTTP_400_BAD_REQUEST)
 
         hash = Corpus.get_hash(word)
 
@@ -39,3 +51,28 @@ class ListAnagramsAPIView(ListAPIView):
 
         serializer = AnagramsSerializer(all_words)
         return Response(serializer.data)
+
+
+class CheckIfWordsAreAnagramsView(APIView):
+    """A view that returns if posted list of words are anagrams"""
+
+    def post(self, request):
+        words = request.data.get('words')
+
+        if not words or len(words) < 2:
+            content = {'error': 'words list not found or too few words'}
+            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = CorpusSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        content = {
+            'words': words,
+            'all_words_are_anagrams': self.words_are_anagrams(words)
+        }
+        return Response(content, status=status.HTTP_200_OK)
+
+    def words_are_anagrams(self, words):
+        hashes = [Corpus.get_hash(word) for word in words]
+
+        return all(hash == hashes[0] for hash in hashes[1:])
