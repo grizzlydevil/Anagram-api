@@ -31,13 +31,13 @@ class ListDeleteAnagramsAPIView(APIView):
             anagrams = [item.word for item in queryset
                         if item.word != word]
 
-            limit = int(limit) if limit else None
-            if limit:
-                anagrams = anagrams[:limit]
-
             include_proper_nouns = request.GET.get('include_proper_nouns')
             if include_proper_nouns and include_proper_nouns == 'False':
                 anagrams = [word for word in anagrams if word.islower()]
+
+            limit = int(limit) if limit else None
+            if limit:
+                anagrams = anagrams[:limit]
 
         content = {
             'anagrams': anagrams
