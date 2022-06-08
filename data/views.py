@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .serializers import (
-    CorpusSerializer, CorpusStatsSerializer
+    CorpusSerializer
 )
 from .models import Corpus
 
@@ -75,10 +75,8 @@ class ShowCorpusStatsView(APIView):
 
     def get(self, request):
         stats = self.get_object()
-        serializer = CorpusStatsSerializer(data=stats)
-        serializer.is_valid()
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(stats, status=status.HTTP_200_OK)
 
     def get_object(self):
         queryset = Corpus.objects.all()
