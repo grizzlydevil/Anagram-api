@@ -17,12 +17,11 @@ class CorpusSerializer(serializers.Serializer):
 
         # Is it a single word? Does it contain illeagal characters?
         for word in unique_words:
-            match = re.match('^[a-zA-Z]+$', word)
+            match = re.match('^[a-zA-Z-]+$', word)
             if not match:
-                unique_words.remove(word)
-                # raise serializers.ValidationError(
-                #     'one or more words have illegal characters'
-                # )
+                raise serializers.ValidationError(
+                    'one or more words have illegal characters'
+                )
 
         # Is word in English language?
 
