@@ -58,9 +58,3 @@ class CorpusStatsSerializer(serializers.Serializer):
     max_length = serializers.FloatField()
     average_length = serializers.IntegerField()
     median_length = serializers.FloatField()
-
-
-class WordsWithMostAnagramsSerializer(serializers.Serializer):
-
-    def to_representation(self, instance):
-        return instance

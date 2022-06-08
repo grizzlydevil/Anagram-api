@@ -21,9 +21,6 @@ class ListAnagramsAPIView(ListAPIView):
             }
             return Response(data, status.HTTP_400_BAD_REQUEST)
 
-        include_proper_nouns = request.GET.get('include_proper_nouns')
-        limit = int(limit) if limit else None
-
         hash = Corpus.get_hash(word)
 
         queryset = self.get_queryset().filter(hash=hash)
@@ -32,9 +29,11 @@ class ListAnagramsAPIView(ListAPIView):
             all_words = [item.word for item in queryset
                          if item.word != word]
 
+            limit = int(limit) if limit else None
             if limit:
                 all_words = all_words[:limit]
 
+            include_proper_nouns = request.GET.get('include_proper_nouns')
             if include_proper_nouns and include_proper_nouns == 'False':
                 all_words = [word for word in all_words if word.islower()]
 

@@ -10,7 +10,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from .serializers import (
-    CorpusSerializer, CorpusStatsSerializer, WordsWithMostAnagramsSerializer
+    CorpusSerializer, CorpusStatsSerializer
 )
 from .models import Corpus
 
@@ -111,10 +111,8 @@ class WordsWithMostAnagramsView(APIView):
 
     def get(self, request):
         data = self.get_object()
-        serializer = WordsWithMostAnagramsSerializer(data=data)
-        serializer.is_valid()
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(data, status=status.HTTP_200_OK)
 
     def get_object(self):
         queryset = Corpus.objects.all()
@@ -133,13 +131,15 @@ class WordsWithMostAnagramsView(APIView):
                     count=hashes_sorted_by_popularity[0]['count'])
             )
 
-            alphagram_ids = [
-                word['alphagram'] for word in most_popular_hashes]
+            most_popular_hashes = [
+                hash['hash'] for hash in most_popular_hashes]
 
-            # obj = {
-            #     [list(queryset.filter(alphagram__id=alphagram_id).values_list(
-            #         'word', flat=True))
-            #     for alphagram_id in alphagram_ids]
-            # }
+            queryset = queryset.filter(hash__in=most_popular_hashes)
+            obj = {
+                'words_with_most_anagrams':
+                [list(queryset.filter(hash=single_hash)
+                 .values_list('word', flat=True))
+                 for single_hash in most_popular_hashes]
+            }
 
         return obj
