@@ -8,7 +8,7 @@ from data.models import Corpus
 from data.serializers import CorpusSerializer
 
 
-class ListAnagramsAPIView(APIView):
+class ListDeleteAnagramsAPIView(APIView):
     """List specified word anagrams limits results with limit query param"""
 
     def get(self, request, *args, **kwargs):
