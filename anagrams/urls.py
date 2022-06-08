@@ -7,5 +7,5 @@ urlpatterns = [
         '<slug:word>.json',
         ListDeleteAnagramsAPIView.as_view()
     ),
-    path('check_anagrams/words.json', CheckIfWordsAreAnagramsView.as_view())
+    path('check-anagrams/words.json', CheckIfWordsAreAnagramsView.as_view())
 ]
