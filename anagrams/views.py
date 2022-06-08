@@ -46,6 +46,7 @@ class ListAnagramsAPIView(APIView):
         return Response(content, status=status.HTTP_200_OK)
 
     def delete(self, request, *args, **kwargs):
+        """Delete a word and all of it's anagrams"""
         word = kwargs.get('word')
 
         self.check_for_illegal_characters(word)
