@@ -20,7 +20,12 @@ class CreateDeleteCorpusViewSet(GenericViewSet):
 
     serializer_class = CorpusSerializer
 
-    @action(detail=False, methods=['post', 'delete'], url_path='words')
+    @action(
+        detail=False,
+        methods=['post', 'delete'],
+        url_path='words',
+        url_name='words'
+    )
     def create_delete_corpus(self, request):
         if request.method == 'DELETE':
             Corpus.objects.all().delete()
@@ -51,11 +56,12 @@ class CreateDeleteCorpusViewSet(GenericViewSet):
     @action(
         detail=False,
         methods=['delete'],
-        url_path=r'words/(?P<word>\w+).json',
+        url_path=r'words/(?P<word>\w+)',
         url_name='word'
     )
     def delete_word(self, _, word):
         word_obj = Corpus.objects.filter(word=word)
+
         if len(word_obj) == 1:
             self.perform_destroy(word_obj)
         return Response(status=status.HTTP_204_NO_CONTENT)

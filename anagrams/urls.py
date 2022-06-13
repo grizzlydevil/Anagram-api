@@ -2,6 +2,8 @@ from django.urls import path
 
 from .views import ListDeleteAnagramsAPIView, CheckIfWordsAreAnagramsView
 
+app_name = "anagrams"
+
 urlpatterns = [
     path(
         '<slug:word>.json',
