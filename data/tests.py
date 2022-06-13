@@ -81,11 +81,11 @@ class CreateCorpusTests(TestCase):
 
     def test_words_with_illegal_chars(self):
         """Test adding words with illegal characters"""
-        data = {'words': ["hi5"]}
+        data = {'words': ['hi5']}
         response = self.add_words(data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        data = {'words': ["two words"]}
+        data = {'words': ['two words']}
         response = self.add_words(data)
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
