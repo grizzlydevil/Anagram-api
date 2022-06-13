@@ -1,5 +1,3 @@
-import math
-
 from django.db.models import Avg, Max, Min, Count
 from django.db.models.functions import Length
 
@@ -97,14 +95,15 @@ class ShowCorpusStatsView(APIView):
                 max_length=Max('length'),
             )
 
+            median_index = int(num_of_words / 2)
             if num_of_words % 2 == 0:
                 stats['median_length'] = (
-                    (queryset[int(num_of_words / 2)].length +
-                     queryset[int(num_of_words / 2 + 1)].length) / 2
+                    (queryset[median_index - 1].length +
+                     queryset[median_index].length) / 2
                 )
             else:
                 stats['median_length'] = (
-                    queryset[math.ceil(num_of_words / 2)].length
+                    queryset[median_index].length
                 )
 
             stats['word_count'] = num_of_words
