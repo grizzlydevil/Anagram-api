@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 
 
@@ -13,7 +15,10 @@ class Corpus(models.Model):
         Create a hash to store in the database which would be unique to every
         anagram
         """
-        lowercase_word = word.lower().replace('-', '')
+        lowercase_word = word.lower()
+
+        # remove legal characters that are not needed for hash
+        lowercase_word = re.sub(r"['-]", "", lowercase_word)
 
         # every letter of a word is hashed as a bitwise number
         # every letter has 2 bits corresponding to the times this letter
@@ -34,5 +39,5 @@ class Corpus(models.Model):
         return hash_with_word_length
 
     @staticmethod
-    def get_alphagram(word):
-        return ''.join(sorted(word.lower()))
+    def check_for_illegal_characters(word):
+        return re.match(r"^[a-zA-Z-']+$", word)

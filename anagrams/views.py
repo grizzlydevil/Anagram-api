@@ -61,7 +61,7 @@ class ListDeleteAnagramsAPIView(APIView):
         return Response(content, status=status.HTTP_204_NO_CONTENT)
 
     def check_for_illegal_characters(self, word):
-        if not re.match('^[a-zA-Z-]+$', word):
+        if not Corpus.check_for_illegal_characters(word):
             content = {
                 'error':
                     'specified word contains illegal characters'

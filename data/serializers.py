@@ -1,5 +1,3 @@
-import re
-
 from rest_framework import serializers
 
 from .models import Corpus
@@ -17,7 +15,7 @@ class CorpusSerializer(serializers.Serializer):
 
         # Is it a single word? Does it contain illeagal characters?
         for word in unique_words:
-            match = re.match('^[a-zA-Z-]+$', word)
+            match = Corpus.check_for_illegal_characters(word)
             if not match:
                 raise serializers.ValidationError(
                     'one or more words have illegal characters'
