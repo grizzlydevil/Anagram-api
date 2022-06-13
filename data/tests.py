@@ -123,17 +123,12 @@ class StatsTests(TestCase):
                 'ccc',
                 'dddd',
                 'eeeee',
-                'zzzzzzzzz'
             ]
         }
         self.client.post(CREATE_DELETE_CORPUS_URL, data=self.data)
 
-    def test_stats(self):
-        """Test stats data"""
-
-        response = self.client.get(STATS_URL)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-
+    def get_data_dict(self, data=None):
+        data = data if data else self.data
         data_dict = {}
 
         word_count = len(self.data['words'])
@@ -146,4 +141,28 @@ class StatsTests(TestCase):
         data_dict['average_length'] = sum(word_length) / word_count
         data_dict['median_length'] = median(sorted(word_length))
 
-        self.assertDictEqual(data_dict, response.data)
+        return data_dict
+
+    def test_stats(self):
+        """Test stats data"""
+
+        response = self.client.get(STATS_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        self.assertDictEqual(self.get_data_dict(), response.data)
+
+        # add new word to test for even and odd num of words
+        new_word = 'newbie'
+
+        # add new word to corpus
+        self.client.post(
+            CREATE_DELETE_CORPUS_URL,
+            data={'words': [new_word]}
+        )
+
+        response = self.client.get(STATS_URL)
+
+        words = self.data
+        words['words'].append(new_word)
+
+        self.assertDictEqual(self.get_data_dict(words), response.data)
