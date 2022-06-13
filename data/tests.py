@@ -1,3 +1,7 @@
+import math
+
+from statistics import median
+
 from django.test import TestCase
 from django.urls import reverse
 
@@ -61,11 +65,11 @@ class CreateCorpusTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
         # check that old words are still unique
-        old_word_occurencies = len(Corpus.objects.filter(word='replays'))
+        old_word_occurencies = Corpus.objects.filter(word='replays').count()
         self.assertEqual(old_word_occurencies, 1)
 
         # check if new words were added and only one instance
-        new_word_occurencies = len(Corpus.objects.filter(word='new'))
+        new_word_occurencies = Corpus.objects.filter(word='new').count()
         self.assertEqual(new_word_occurencies, 1)
 
     def test_delete_word(self):
@@ -107,29 +111,39 @@ class CreateCorpusTests(TestCase):
         self.assertFalse(Corpus.objects.all().exists())
 
 
-# class DeleteWordAndStatsTests(TestCase):
-#     """Test Deleting a words and stats"""
+class StatsTests(TestCase):
+    """Test stats are returning factual data"""
 
-#     def setUp(self):
-#         self.client = APIClient()
-#         self.data = {
-#             'words': [
-#                 "a",
-#                 "bb",
-#                 "ccc",
-#                 "dddd",
-#                 "eeeee"
-#             ]
-#         }
-#         self.client.post(CREATE_DELETE_CORPUS_URL, data=self.data)
+    def setUp(self):
+        self.client = APIClient()
+        self.data = {
+            'words': [
+                'a',
+                'bb',
+                'ccc',
+                'dddd',
+                'eeeee',
+                'zzzzzzzzz'
+            ]
+        }
+        self.client.post(CREATE_DELETE_CORPUS_URL, data=self.data)
 
-#     def test_delete_word(self):
-#         """Test deleting a word from corpus"""
+    def test_stats(self):
+        """Test stats data"""
 
-#         word = 'a'
-#         delete_word_url = reverse('data:corpus-word', args=[word])
-#         response = self.client.delete(delete_word_url)
+        response = self.client.get(STATS_URL)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-#         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        data_dict = {}
 
-#         self.assertFalse(Corpus.objects.filter(word=word).exists())
+        word_count = len(self.data['words'])
+        data_dict['word_count'] = word_count
+
+        word_length = [len(word) for word in self.data['words']]
+
+        data_dict['min_length'] = min(word_length)
+        data_dict['max_length'] = max(word_length)
+        data_dict['average_length'] = sum(word_length) / word_count
+        data_dict['median_length'] = median(sorted(word_length))
+
+        self.assertDictEqual(data_dict, response.data)
