@@ -7,7 +7,12 @@ app_name = "anagrams"
 urlpatterns = [
     path(
         '<slug:word>.json',
-        ListDeleteAnagramsAPIView.as_view()
+        ListDeleteAnagramsAPIView.as_view(),
+        name='anagrams'
     ),
-    path('check-anagrams/words.json', CheckIfWordsAreAnagramsView.as_view())
+    path(
+        'check-anagrams/words.json',
+        CheckIfWordsAreAnagramsView.as_view(),
+        name='words-anagrams'
+    )
 ]

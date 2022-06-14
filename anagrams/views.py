@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.shortcuts import get_object_or_404
+
 from data.models import Corpus
 from data.serializers import CorpusSerializer
 
@@ -48,9 +50,9 @@ class ListDeleteAnagramsAPIView(APIView):
         word = kwargs.get('word')
 
         self.check_for_illegal_characters(word)
-        hash = Corpus.get_hash(word)
+        word_obj = get_object_or_404(Corpus, word=word)
 
-        words_to_delete = Corpus.objects.filter(hash=hash)
+        words_to_delete = Corpus.objects.filter(hash=word_obj.hash)
         content = {
             'deleted': list(words_to_delete.values_list('word', flat=True))
         }
@@ -73,7 +75,7 @@ class CheckIfWordsAreAnagramsView(APIView):
     def post(self, request):
         words = request.data.get('words')
 
-        if not words or len(words) < 2:
+        if not words or not isinstance(words, list) or len(words) < 2:
             content = {'error': 'words list not found or too few words'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
