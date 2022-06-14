@@ -1,9 +1,8 @@
 from statistics import median
 
-from django.test import TestCase
 from django.urls import reverse
 
-from rest_framework.test import APIClient
+from rest_framework.test import APITestCase
 from rest_framework import status
 
 from .models import Corpus
@@ -14,11 +13,10 @@ STATS_URL = reverse('data:stats')
 GET_ANAGRAMS_URL = reverse('data:get-anagrams')
 
 
-class CreateCorpusTests(TestCase):
+class CreateCorpusTests(APITestCase):
     """Test creating corpus"""
 
     def setUp(self):
-        self.client = APIClient()
         self.data = {
             'words': [
                 'parleys',
@@ -32,7 +30,8 @@ class CreateCorpusTests(TestCase):
     def add_words(self, words=None):
         return self.client.post(
             CREATE_DELETE_CORPUS_URL,
-            data=words if words else self.data
+            data=words if words else self.data,
+            format='json'
         )
 
     def test_create_corpus(self):
@@ -109,11 +108,10 @@ class CreateCorpusTests(TestCase):
         self.assertFalse(Corpus.objects.all().exists())
 
 
-class StatsTests(TestCase):
+class StatsTests(APITestCase):
     """Test stats are returning factual data"""
 
     def setUp(self):
-        self.client = APIClient()
         self.data = {
             'words': [
                 'a',
@@ -123,7 +121,9 @@ class StatsTests(TestCase):
                 'eeeee',
             ]
         }
-        self.client.post(CREATE_DELETE_CORPUS_URL, data=self.data)
+        self.client.post(CREATE_DELETE_CORPUS_URL,
+                         data=self.data,
+                         format='json')
 
     def get_data_dict(self, data=None):
         data = data if data else self.data
@@ -155,7 +155,8 @@ class StatsTests(TestCase):
         # add new word to corpus
         self.client.post(
             CREATE_DELETE_CORPUS_URL,
-            data={'words': [new_word]}
+            data={'words': [new_word]},
+            format='json'
         )
 
         response = self.client.get(STATS_URL)
@@ -166,12 +167,10 @@ class StatsTests(TestCase):
         self.assertDictEqual(self.get_data_dict(words), response.data)
 
 
-class GetAnagramsTests(TestCase):
-    """Test get anagrams view"""
+class BaseTestCaseSetUp(APITestCase):
+    """Set up Corpus with a couple of anagrams"""
 
     def setUp(self):
-        self.client = APIClient()
-
         # creating some fake data
         # 2x 5 word anagrams - most popular
         # 1x 4 word anagrams
@@ -196,7 +195,15 @@ class GetAnagramsTests(TestCase):
                 'ram', 'mona', 'morn'
             ]
         }
-        self.client.post(CREATE_DELETE_CORPUS_URL, data=self.data)
+        self.client.post(
+            CREATE_DELETE_CORPUS_URL,
+            data=self.data,
+            format='json'
+        )
+
+
+class GetAnagramsTests(BaseTestCaseSetUp):
+    """Test get anagrams view"""
 
     def test_find_most_popular_anagrams(self, sets_from_db=None):
         """Get the most popular anagrams (2x 5 word anagrams)"""

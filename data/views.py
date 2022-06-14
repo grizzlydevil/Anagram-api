@@ -31,7 +31,7 @@ class CreateDeleteCorpusViewSet(GenericViewSet):
 
         words = request.data.get('words')
 
-        if not words or len(words) == 0:
+        if not words or not isinstance(words, list) or len(words) == 0:
             content = {'error': 'words list not found'}
             return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
