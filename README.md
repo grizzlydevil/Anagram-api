@@ -22,8 +22,8 @@
 Endpoints:
 - `POST /words.json`: Takes a JSON array of English-language words and adds them to the corpus (data store).
 json format: { "words": ["read", "dear", "dare"] }
-There is a secret json to post which makes the database to ingest the whole dictionaty.txt you provided. (**WARNING** This might take 10-15 mins)
-> { "words": ["ingest dict"] }
+There is a secret json to post which makes the database to ingest the whole dictionaty.txt you provided:
+> { "words": ["ingest dict"] } (**WARNING** This might take 10-15 mins)
 
 - `DELETE /words.json`: Deletes all contents of the data store. (no turning back..)
 
