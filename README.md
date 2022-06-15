@@ -27,7 +27,8 @@ json format: { "words": ["read", "dear", "dare"] }
  - This endpoint supports `size=5` query param which then returns not only most popular groups but all groups of words and their anagrams of specified size or more words in them.
 
 - `POST /anagrams/check-anagrams/words.json`: Takes a JSON array of English-language words and returns a json response whether they are all anagrams.
-response json format:
+- response json format:
+```
 {
     "words": [
         "read",
@@ -36,3 +37,4 @@ response json format:
     ],
     "all_words_are_anagrams": true
 }
+```
