@@ -1,8 +1,21 @@
 # Set Up
- - Create an empty folder for project.
- - bash in project folder
- > git clone https://github.com/grizzlydevil/Anagram-api.git
 
+- Create an empty folder for project.
+- Open bash in project folder
+> git clone https://github.com/grizzlydevil/Anagram-api.git
+
+- Create a new virtual environment in the project folder
+- Activate env
+> pip install -r requirements.txt
+
+- The project uses PostgreSQL. It needs to be set up in the anagram_api/settings.py DATABASES
+> python manage.py migrate
+
+- Check if the project is working
+> python manage.py test
+
+- Run server
+> python manage.py runserver
 
 # Anagram-api
 
