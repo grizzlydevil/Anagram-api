@@ -6,7 +6,7 @@ from django.db import models
 class Corpus(models.Model):
     """A model for word. To match against anagrams stores hash and alphagram"""
 
-    word = models.CharField(max_length=50)
+    word = models.CharField(max_length=70)
     hash = models.PositiveBigIntegerField(db_index=True)
 
     @staticmethod
