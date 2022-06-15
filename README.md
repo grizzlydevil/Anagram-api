@@ -57,18 +57,28 @@ There is a secret json to post which makes the database to ingest the whole dict
 # Notes
 
 ```
-This API is limited to words only. Anagrams can theoretically contain multiple words this is not implemented right now.
-Words inside corpus currently can contain special characters apostrophe and hyphen ['-]. But these characters are not included in the anagram hash calculation. For example word o'clock and imaginary word cloock would be anagrams.
-For every word put into corpus a hash is generated which is unique for every anagram word. This hash is set as index in the database. This approach makes database searches very fast. In my testing I noticed that queries return around 3x quicker than making a query with VARCHAR strings.
+This API is limited to words only. Anagrams can theoretically contain multiple words.
+This is not implemented right now.
+Words inside corpus currently can contain special characters apostrophe and hyphen ['-].
+But these characters are not included in the anagram hash calculation.
+For example word o'clock and imaginary word cloock would be anagrams.
+For every word put into corpus a hash is generated which is unique for every anagram word.
+This hash is set as index in the database. This approach makes database searches very fast.
+In my testing I noticed that queries return around 3x quicker than making a query with strings.
 ```
 
 # The hash
 
 ```
-The hash is created as a bitmap. English language consists of 25 letters and I provided 2 bits for every letter.
-2 bits are needed to be able to encode multiples of the same letter. Giving it 2 bits enables encoding up to 3 of the same letter. If for example a word has 4 a letters they will be encoded the same as a letter b.
+The hash is created as a bitmap. English language consists of 25 letters and I provided
+2 bits for every letter.
+2 bits are needed to be able to encode multiples of the same letter.
+Giving it 2 bits enables encoding up to 3 of the same letter.
+If for example a word has 4 a letters they will be encoded the same as a letter b.
 For that reason At the end or 50 bits I added 6 more bits to encode the length of the word.
-The max word length limitation at the moment is 63 characters (6 bits). Which I thought was plenty enough for english language.
-Storing this as a decimal positive integer creates a unique hash which as far as I can see only another anagram could have.
+The max word length limitation at the moment is 63 characters (6 bits).
+Which I thought was plenty enough for english language.
+Storing this as a decimal positive integer creates a unique hash which as far as
+I can see only another anagram could have.
 It enables pretty quick database search.
 ```
