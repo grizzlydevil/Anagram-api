@@ -20,6 +20,10 @@ class CorpusSerializer(serializers.Serializer):
                 raise serializers.ValidationError(
                     'one or more words have illegal characters'
                 )
+            if len(char for char in word if char.isalpha()) > 63:
+                raise serializers.ValidationError(
+                    'word length is limited to 63 chars'
+                )
 
         # Is word in English language?
 
